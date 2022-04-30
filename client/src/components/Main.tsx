@@ -5,41 +5,38 @@ import {
   DroppableProvided,
 } from "react-beautiful-dnd";
 import LetterCard from "./LetterCard";
-import {
-  EVENTS,
-  GameEvent,
-  UserInfo,
-  Letter,
-  SCRAMBLE_PLAYER_INFO,
-} from "../types";
+import { EVENTS, Letter, SCRAMBLE_PLAYER_INFO } from "../types";
 import useScramble from "../hooks/useScramble";
 import CorrentAnswer from "../lotties/CorrectAnswer";
 
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import useLocalStorage from "../hooks/useLocalStorage";
 import GameModal from "./GameModal";
 import useEvents from "../hooks/useEvents";
+import { eventsReducer } from "../reducers/events";
+import { scoreReducer } from "../reducers/score";
 
 window.onbeforeunload = function () {
   return false;
 };
 
 const Main = () => {
-  const [playerScores, setPlayerScores] = useState<Array<UserInfo>>([]);
   const [isGameModalOpen, setIsGameModalOpen] = useState<boolean>(false);
   const [gameData, setGameData] = useLocalStorage(SCRAMBLE_PLAYER_INFO, {});
-  const [gameEvents, setGameEvents] = useState<Array<GameEvent>>([]);
+  const [gameEvents, dispatchEventUpdate] = useReducer(eventsReducer, []);
+  const [playerScores, dispatchPlayerScores] = useReducer(scoreReducer, []);
 
   const { onDragEnd, isCorrect, letters } = useScramble({
-    setGameEvents,
-    setPlayerScores,
+    dispatchEventUpdate,
+    dispatchPlayerScores,
+    playerScores,
   });
 
   const { handleJoinGame } = useEvents({
     setIsGameModalOpen,
     gameData,
-    setGameEvents,
-    setPlayerScores,
+    dispatchEventUpdate,
+    dispatchPlayerScores,
     setGameData,
   });
 

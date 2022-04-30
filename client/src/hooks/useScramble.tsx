@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { DropResult } from "react-beautiful-dnd";
 import {
-  GameEvent,
+  EVENT_ACTIONS,
   Letter,
+  SCORE_ACTIONS,
   ScramblerProps,
   SCRAMBLE_PLAYER_INFO,
 } from "../types";
@@ -12,30 +13,58 @@ import { EVENTS } from "../types";
 import useLocalStorage from "./useLocalStorage";
 var randomWords = require("random-words");
 
-const useScramble = ({ setGameEvents, setPlayerScores }: ScramblerProps) => {
+const useScramble = ({
+  dispatchEventUpdate,
+  dispatchPlayerScores,
+  playerScores,
+}: ScramblerProps) => {
+  const allPlayers = useMemo(() => [...playerScores], [playerScores]);
+
   const [words, setWords] = useState<Array<string>>([]);
   const [currentWord, setCurrentWord] = useState<string | undefined>();
   const [letters, setLetters] = useState<Array<Letter>>([]);
   const [isCorrect, setisCorrect] = useState<boolean>(false);
   const [userData] = useLocalStorage(SCRAMBLE_PLAYER_INFO);
 
+  const incrementScore = useCallback(
+    (user) => {
+      const playerToUpdate = allPlayers.find(
+        (score) => score.username === user
+      );
+
+      if (!playerToUpdate) return;
+      dispatchPlayerScores({
+        type: SCORE_ACTIONS.increment,
+        player: playerToUpdate,
+      });
+    },
+    [dispatchPlayerScores, allPlayers]
+  );
+
   useEffect(() => {
     socket.on(EVENTS.user_score, ({ user, text, score }) => {
-      setGameEvents((events: Array<GameEvent>) => [
-        ...events,
-        { type: EVENTS.user_score, content: text },
-      ]);
-
-      setPlayerScores((players) => {
-        const allPlayers = [...players];
-        const playerToUpdate = allPlayers.findIndex(
-          (score) => score.username === user
-        );
-        allPlayers[playerToUpdate].score = score;
-        return allPlayers;
+      const playerToUpdate = allPlayers.find(
+        (player) => player.username === user
+      );
+      dispatchEventUpdate({
+        event: { type: EVENTS.user_score, content: text },
+        type: EVENT_ACTIONS.new_event,
+      });
+      if (!playerToUpdate) return;
+      dispatchPlayerScores({
+        type: SCORE_ACTIONS.set_player_score,
+        player: playerToUpdate,
+        score,
       });
     });
-  }, []);
+  }, [dispatchEventUpdate, incrementScore, allPlayers, dispatchPlayerScores]);
+
+  const loadNextWord = () => {
+    const indexOfCurrentWord = words.findIndex((word) => word === currentWord);
+    setTimeout(() => {
+      setCurrentWord(words[indexOfCurrentWord + 1]);
+    }, 2000);
+  };
 
   useEffect(() => {
     const randomWordsList = randomWords(10);
@@ -69,24 +98,14 @@ const useScramble = ({ setGameEvents, setPlayerScores }: ScramblerProps) => {
 
     if (currentWord === letterContents) {
       setisCorrect(true);
-      setPlayerScores((players) => {
-        const allPlayers = [...players];
-        const playerToUpdate = allPlayers.find(
-          (player) => player.username === userData.username
-        );
-        playerToUpdate.score++;
-        socket.emit(EVENTS.user_score, playerToUpdate.score, (error) =>
-          console.log("An error occurred during score broadcast.", error)
-        );
-        return allPlayers;
-      });
-
-      const indexOfCurrentWord = words.findIndex(
-        (word) => word === currentWord
+      const playerToUpdate = allPlayers.find(
+        (player) => player.username === userData.username
       );
-      setTimeout(() => {
-        setCurrentWord(words[indexOfCurrentWord + 1]);
-      }, 2000);
+      socket.emit(EVENTS.user_score, playerToUpdate.score + 1, (error) =>
+        console.log("An error occurred during score broadcast.", error)
+      );
+      incrementScore(userData.username);
+      loadNextWord();
     }
 
     setLetters(letterArray);
