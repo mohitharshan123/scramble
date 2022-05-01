@@ -6,28 +6,32 @@ import {
   EventsProps,
   EVENT_ACTIONS,
   SCORE_ACTIONS,
+  SCRAMBLE_PLAYER_INFO,
   UserInfo,
 } from "../types";
+import useLocalStorage from "./useLocalStorage";
 
 const useEvents = ({
   setIsGameModalOpen,
-  gameData,
   dispatchEventUpdate,
+  gameData,
   setGameData,
 }: EventsProps) => {
   const { dispatch: dispatchPlayerScores } = useScores();
 
   useEffect(() => {
-    if (!gameData.gameID) {
+    if (!gameData?.gameID) {
       setIsGameModalOpen(true);
     } else {
       socket.emit(
         EVENTS.user_joined,
         { username: gameData.username, gameID: gameData.gameID },
-        () => {}
+        () => {
+          setIsGameModalOpen(false);
+        }
       );
     }
-  }, [gameData.username, gameData.gameID, setIsGameModalOpen]);
+  }, [gameData]);
 
   useEffect(() => {
     if (socket.connected) {
@@ -73,8 +77,8 @@ const useEvents = ({
   }, [dispatchPlayerScores, dispatchEventUpdate]);
 
   const handleJoinGame = ({ username, gameID }: UserInfo) => {
+    setGameData({ username, gameID });
     socket.emit(EVENTS.user_joined, { username, gameID }, () => {
-      setGameData({ username, gameID });
       setIsGameModalOpen(false);
     });
   };

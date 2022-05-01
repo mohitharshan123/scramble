@@ -5,29 +5,25 @@ import {
   Letter,
   SCORE_ACTIONS,
   ScramblerProps,
-  SCRAMBLE_PLAYER_INFO,
 } from "../types";
 import { shuffleWord, reorder } from "../utils";
 import socket from "../socket";
 import { EVENTS } from "../types";
-import useLocalStorage from "./useLocalStorage";
 import { useScores } from "../contexts/score";
 var randomWords = require("random-words");
 
-const useScramble = ({ dispatchEventUpdate }: ScramblerProps) => {
+const useScramble = ({ dispatchEventUpdate, gameData }: ScramblerProps) => {
   const { state: playerScores, dispatch: dispatchPlayerScores } = useScores();
 
   const [words, setWords] = useState<Array<string>>([]);
   const [currentWord, setCurrentWord] = useState<string | undefined>();
   const [letters, setLetters] = useState<Array<Letter>>([]);
   const [isCorrect, setisCorrect] = useState<boolean>(false);
-  const [userData] = useLocalStorage(SCRAMBLE_PLAYER_INFO);
 
-  const incrementScore = (user) => {
+  const incrementScore = () => {
     const playerToUpdate = playerScores.find(
-      (score) => score.username === user
+      (score) => score.username === gameData.username
     );
-
     if (!playerToUpdate) return;
     socket.emit(EVENTS.user_score, {
       user: playerToUpdate,
@@ -96,7 +92,7 @@ const useScramble = ({ dispatchEventUpdate }: ScramblerProps) => {
 
     if (currentWord === letterContents) {
       setisCorrect(true);
-      incrementScore(userData.username);
+      incrementScore();
       loadNextWord();
     }
     setLetters(letterArray);

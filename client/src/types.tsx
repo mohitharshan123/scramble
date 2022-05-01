@@ -18,6 +18,7 @@ export interface UserInfo {
 
 export interface ScramblerProps {
   dispatchEventUpdate: Dispatch<any>;
+  gameData: any;
 }
 
 export interface GameModalProps {
@@ -45,9 +46,9 @@ export type NewEventAction = {
 };
 export interface EventsProps {
   setIsGameModalOpen: Dispatch<any>;
-  gameData: any;
   dispatchEventUpdate: Dispatch<NewEventAction>;
-  setGameData: Dispatch<any>;
+  gameData: any;
+  setGameData: any;
 }
 
 export interface GameEvent {

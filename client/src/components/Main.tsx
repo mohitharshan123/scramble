@@ -22,18 +22,23 @@ window.onbeforeunload = function () {
 
 const Main = () => {
   const [isGameModalOpen, setIsGameModalOpen] = useState<boolean>(false);
-  const [gameData, setGameData] = useLocalStorage(SCRAMBLE_PLAYER_INFO, {});
   const [gameEvents, dispatchEventUpdate] = useReducer(eventsReducer, []);
+  const [gameData, setGameData] = useLocalStorage(SCRAMBLE_PLAYER_INFO, {
+    gameID: "",
+    username: "",
+  });
 
   const { state: playerScores } = useScores();
   const { onDragEnd, isCorrect, letters } = useScramble({
     dispatchEventUpdate,
+    gameData,
+    setGameData,
   });
 
   const { handleJoinGame } = useEvents({
     setIsGameModalOpen,
-    gameData,
     dispatchEventUpdate,
+    gameData,
     setGameData,
   });
 
