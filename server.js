@@ -38,12 +38,11 @@ io.on(EVENTS.socket_connected, (socket) => {
     callback();
   });
 
-  socket.on(EVENTS.user_score, (score) => {
-    if (!user) return;
+  socket.on(EVENTS.user_score, ({ user: userToUpdate, score }) => {
     io.to(user.gameID).emit(EVENTS.user_score, {
-      user: user.username,
+      user: userToUpdate.username,
       score: score,
-      text: `${user.username}: ${score}`,
+      text: `${userToUpdate.username}: ${score}`,
     });
   });
 

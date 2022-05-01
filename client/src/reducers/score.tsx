@@ -5,8 +5,9 @@ export const scoreReducer = (
   action: ScoreActionTypes
 ): Array<UserInfo> => {
   switch (action.type) {
-    case SCORE_ACTIONS.set_scores:
+    case SCORE_ACTIONS.set_scores: {
       return [...action.players];
+    }
     case SCORE_ACTIONS.increment: {
       const allPlayers = [...state];
       const playerToUpdate = allPlayers.find(

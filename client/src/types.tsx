@@ -18,8 +18,6 @@ export interface UserInfo {
 
 export interface ScramblerProps {
   dispatchEventUpdate: Dispatch<any>;
-  dispatchPlayerScores: Dispatch<any>;
-  playerScores: Array<UserInfo>;
 }
 
 export interface GameModalProps {
@@ -49,9 +47,6 @@ export interface EventsProps {
   setIsGameModalOpen: Dispatch<any>;
   gameData: any;
   dispatchEventUpdate: Dispatch<NewEventAction>;
-  dispatchPlayerScores: Dispatch<
-    IncrementScoreAction | SetScoreCardAction | SetPlayerScoreAction
-  >;
   setGameData: Dispatch<any>;
 }
 

@@ -15,6 +15,7 @@ import GameModal from "./GameModal";
 import useEvents from "../hooks/useEvents";
 import { eventsReducer } from "../reducers/events";
 import { scoreReducer } from "../reducers/score";
+import { useScores } from "../contexts/score";
 
 window.onbeforeunload = function () {
   return false;
@@ -24,19 +25,16 @@ const Main = () => {
   const [isGameModalOpen, setIsGameModalOpen] = useState<boolean>(false);
   const [gameData, setGameData] = useLocalStorage(SCRAMBLE_PLAYER_INFO, {});
   const [gameEvents, dispatchEventUpdate] = useReducer(eventsReducer, []);
-  const [playerScores, dispatchPlayerScores] = useReducer(scoreReducer, []);
 
+  const { state: playerScores } = useScores();
   const { onDragEnd, isCorrect, letters } = useScramble({
     dispatchEventUpdate,
-    dispatchPlayerScores,
-    playerScores,
   });
 
   const { handleJoinGame } = useEvents({
     setIsGameModalOpen,
     gameData,
     dispatchEventUpdate,
-    dispatchPlayerScores,
     setGameData,
   });
 

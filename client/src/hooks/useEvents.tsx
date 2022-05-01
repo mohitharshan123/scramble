@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useScores } from "../contexts/score";
 import socket from "../socket";
 import {
   EVENTS,
@@ -12,9 +13,10 @@ const useEvents = ({
   setIsGameModalOpen,
   gameData,
   dispatchEventUpdate,
-  dispatchPlayerScores,
   setGameData,
 }: EventsProps) => {
+  const { dispatch: dispatchPlayerScores } = useScores();
+
   useEffect(() => {
     if (!gameData.gameID) {
       setIsGameModalOpen(true);
@@ -50,7 +52,7 @@ const useEvents = ({
 
     socket.on(EVENTS.users_in_game, ({ users }) => {
       dispatchPlayerScores({
-        players: users.map((user) => ({ ...user, score: 0 })),
+        players: users,
         type: SCORE_ACTIONS.set_scores,
       });
     });
