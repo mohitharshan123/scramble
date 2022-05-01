@@ -74,8 +74,8 @@ const useEvents = ({
 
   const handleJoinGame = ({ username, gameID }: UserInfo) => {
     socket.emit(EVENTS.user_joined, { username, gameID }, () => {
-      setIsGameModalOpen(false);
       setGameData({ username, gameID });
+      setIsGameModalOpen(false);
     });
   };
 

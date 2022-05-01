@@ -14,18 +14,12 @@ const io = new Server(5000, {
 io.on(EVENTS.socket_connected, (socket) => {
   var user = {};
   socket.on(EVENTS.user_joined, ({ username, gameID }, callback) => {
-    const { user: addedUser } = addUser({
+    const { user } = addUser({
       id: socket.id,
       username,
       gameID,
     });
-    user = addedUser;
-
     socket.join(user.gameID);
-    socket.emit(EVENTS.user_joined, {
-      user: user.username,
-    });
-
     io.to(user.gameID).emit(EVENTS.user_joined, {
       user: user.username,
       text: `${user.username} has joined the game.`,
@@ -39,7 +33,7 @@ io.on(EVENTS.socket_connected, (socket) => {
   });
 
   socket.on(EVENTS.user_score, ({ user: userToUpdate, score }) => {
-    io.to(user.gameID).emit(EVENTS.user_score, {
+    io.to(userToUpdate.gameID).emit(EVENTS.user_score, {
       user: userToUpdate.username,
       score: score,
       text: `${userToUpdate.username}: ${score}`,
