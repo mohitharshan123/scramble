@@ -23,22 +23,10 @@ const useScramble = ({ dispatchEventUpdate }: ScramblerProps) => {
   const [isCorrect, setisCorrect] = useState<boolean>(false);
   const [userData] = useLocalStorage(SCRAMBLE_PLAYER_INFO);
 
-  const incrementScore = (user) => {
-    const playerToUpdate = playerScores.find(
-      (score) => score.username === user
-    );
-
-    if (!playerToUpdate) return;
-    dispatchPlayerScores({
-      type: SCORE_ACTIONS.increment,
-      player: playerToUpdate,
-    });
-  };
-
   useEffect(() => {
     socket.on(EVENTS.user_score, ({ user, text, score }) => {
       const playerToUpdate = playerScores.find(
-        (player) => player.username === user
+        (player) => player.username.toLowerCase() === user.toLowerCase()
       );
       if (!playerToUpdate) return;
       dispatchEventUpdate({
@@ -51,7 +39,7 @@ const useScramble = ({ dispatchEventUpdate }: ScramblerProps) => {
         score,
       });
     });
-  }, []);
+  }, [playerScores]);
 
   const loadNextWord = () => {
     const indexOfCurrentWord = words.findIndex((word) => word === currentWord);
@@ -93,13 +81,13 @@ const useScramble = ({ dispatchEventUpdate }: ScramblerProps) => {
     if (currentWord === letterContents) {
       setisCorrect(true);
       const playerToUpdate = playerScores.find(
-        (player) => player.username === userData.username
+        (player) =>
+          player.username.toLowerCase() === userData.username.toLowerCase()
       );
       socket.emit(EVENTS.user_score, {
         user: playerToUpdate,
         score: playerToUpdate.score + 1,
       });
-      incrementScore(userData.username);
       loadNextWord();
     }
 

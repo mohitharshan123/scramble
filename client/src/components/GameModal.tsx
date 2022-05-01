@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { GameModalProps } from "../types";
 
 const GameModal = ({ onSubmit }: GameModalProps) => {
@@ -32,7 +32,9 @@ const GameModal = ({ onSubmit }: GameModalProps) => {
                 <h3
                   className="text-lg leading-6 font-medium text-gray-900"
                   id="modal-title"
-                ></h3>
+                >
+                  Scramble
+                </h3>
                 <div className="mt-2 w-full flex flex-col space-y-3">
                   <input
                     ref={gameIDInput}

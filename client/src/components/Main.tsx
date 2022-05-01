@@ -14,7 +14,6 @@ import useLocalStorage from "../hooks/useLocalStorage";
 import GameModal from "./GameModal";
 import useEvents from "../hooks/useEvents";
 import { eventsReducer } from "../reducers/events";
-import { scoreReducer } from "../reducers/score";
 import { useScores } from "../contexts/score";
 
 window.onbeforeunload = function () {
@@ -47,7 +46,7 @@ const Main = () => {
     <>
       {isGameModalOpen && <GameModal onSubmit={handleJoinGame} />}
       <div className="flex flex-row space-x-5">
-        <div className="flex justify-center items-center h-screen flex-col space-y-10 w-3/4 overflow-scroll bg-gradient-to-r from-cyan-500 to-blue-500">
+        <div className="flex justify-center items-center h-screen flex-col space-y-10 w-3/4 bg-gradient-to-r from-cyan-500 to-blue-500">
           {isCorrect ? (
             <CorrentAnswer />
           ) : (
